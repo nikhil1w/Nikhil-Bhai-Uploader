@@ -1523,14 +1523,13 @@ async def text_handler(bot: Client, m: Message):
 
             elif "https://cpvod.testbook.com/" in url or "classplusapp.com/drm/" in url:
                 url = url.replace("https://cpvod.testbook.com/","https://media-cdn.classplusapp.com/drm/")
-                url = f"https://cpapi-rjbs.onrender.com/extract_keys?url={url}@bots_updatee"
-                #url = f"https://scammer-keys.vercel.app/api?url={url}&token={cptoken}&auth=@scammer_botxz1"
+                url = f"https://dragoapi.vercel.app/classplus?link=" + url
                 mpd, keys = helper.get_mps_and_keys(url)
                 url = mpd
                 keys_string = " ".join([f"--key {key}" for key in keys])
 
             elif "classplusapp" in url:
-                signed_api = f"https://cpapi-rjbs.onrender.com/extract_keys?url={url}@bots_updatee"
+                signed_api = f"https://dragoapi.vercel.app/classplus?link=" + url
                 response = requests.get(signed_api, timeout=20)
                 #url = response.text.strip()
                 url = response.json()['url']  
