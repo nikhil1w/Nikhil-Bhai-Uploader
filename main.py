@@ -496,7 +496,7 @@ async def topic_handler(client: Client, m: Message):
 @bot.on_message(filters.command("token") & filters.private)
 async def token_handler(client: Client, m: Message):
     global cwtoken, cptoken, pwtoken
-    editable = await m.reply_text("<b>Enter 𝐏𝐖/𝐂𝐖/𝐂𝐏 Working Token For 𝐌𝐏𝐃 𝐔𝐑𝐋 or send /d</b>\n<blockquote>If you are downloading Classplus Videos, make sure you joined @bots_updatee this channel</blockquote>")
+    editable = await m.reply_text("<b>Enter 𝐏𝐖/𝐂𝐖/𝐂𝐏 Working Token For 𝐌𝐏𝐃 𝐔𝐑𝐋 or send /d</b>")
     input: Message = await bot.listen(editable.chat.id)
     token = input.text
     if token == '/d':
