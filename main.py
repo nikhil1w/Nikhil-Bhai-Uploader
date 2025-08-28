@@ -72,7 +72,7 @@ photozip = 'https://files.catbox.moe/hn7kyr.jpg'
 BUTTONSCONTACT = InlineKeyboardMarkup([[InlineKeyboardButton(text="📞 Contact", url="https://t.me/Nikhilbhaiiibot")]])
 keyboard = InlineKeyboardMarkup(
     [
-        [InlineKeyboardButton(text="🛠️ Help", url="@Freebatcheswithnikhil"), InlineKeyboardButton(text="🛠️ Admin", url="@contactgyanvanibot ")],
+        [InlineKeyboardButton(text="🛠️ Help", url="https://t.me/freebatcheswithnikhil"), InlineKeyboardButton(text="🛠️ Admin", url="https://t.me/Nikhilbhaiiibot)],
     ]
 )
 
@@ -588,25 +588,25 @@ async def start(bot, m: Message):
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("💎 Feature", callback_data="feat_command"), InlineKeyboardButton("🕸️ Commands", callback_data="cmd_command")],
             [InlineKeyboardButton("💳 Plans", callback_data="upgrade_command")],
-            [InlineKeyboardButton(text="📞 Contact", url=f"@Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Batches", url="@Freebatcheswithnikhil")],
+            [InlineKeyboardButton(text="📞 Contact", url=f"https://t.me/Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Batches", url="https://t.me/Freebatcheswithnikhil)],
         ])
         
         await start_message.edit_text(
             f"🌟 Welcome {m.from_user.first_name}! 🌟\n\n" +
             f"Great! You are a premium member!\n"
             f"Use button : **✨ Commands** to get started 🌟\n\n"
-            f"If you face any problem contact -  [{CREDIT}⁬](@Nikhilbhaiiibot)\n", disable_web_page_preview=True, reply_markup=keyboard
+            f"If you face any problem contact -  [{CREDIT}⁬](https://t.me/Nikhilbhaiiibot)\n", disable_web_page_preview=True, reply_markup=keyboard
         )
     else:
         await asyncio.sleep(2)
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("💎 Features", callback_data="feat_command"), InlineKeyboardButton("✨ Commands", callback_data="cmd_command")],
             [InlineKeyboardButton("💳 Plans", callback_data="upgrade_command")],
-            [InlineKeyboardButton(text="📞 Contact", url=f"@Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Join", url="@Freebatcheswithnikhil")],
+            [InlineKeyboardButton(text="📞 Contact", url=f"https://t.me/Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Join", url="https://t.me/Freebatcheswithnikhil")],
         ])
         await start_message.edit_text(
            f" 🎉 Welcome {m.from_user.first_name} to DRM Bot! 🎉\n\n"
-           f"**You are currently using the free version.** 🆓\n\n<blockquote expandable>I'm here to make your life easier by downloading videos from your **.txt** file 📄 and uploading them directly to Telegram!</blockquote>\n\n**Want to get started? Press /id**\n\n💬 Contact : [{CREDIT}⁬](@Nikhilbhaiiibot) to Get The Subscription 🎫 and unlock the full potential of your new bot! 🔓\n", disable_web_page_preview=True, reply_markup=keyboard
+           f"**You are currently using the free version.** 🆓\n\n<blockquote expandable>I'm here to make your life easier by downloading videos from your **.txt** file 📄 and uploading them directly to Telegram!</blockquote>\n\n**Want to get started? Press /id**\n\n💬 Contact : [{CREDIT}⁬](https://t.me/Nikhilbhaiiibot) to Get The Subscription 🎫 and unlock the full potential of your new bot! 🔓\n", disable_web_page_preview=True, reply_markup=keyboard
     )
 
 @bot.on_callback_query(filters.regex("back_to_main_menu"))
@@ -617,7 +617,7 @@ async def back_to_main_menu(client, callback_query):
     keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("💎 Features", callback_data="feat_command"), InlineKeyboardButton("✨ Commands", callback_data="cmd_command")],
             [InlineKeyboardButton("💳 Plans", callback_data="upgrade_command")],
-            [InlineKeyboardButton(text="📞 Contact", url=f"@Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Join", url="@Freebatcheswithnikhil")],
+            [InlineKeyboardButton(text="📞 Contact", url=f"https://t.me/Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Join", url="https://t.me/Freebatcheswithnikhil")],
         ])
     
     await callback_query.message.edit_media(
@@ -735,7 +735,7 @@ async def upgrade_button(client, callback_query):
            f"• 🎓 All Non DRM+AES Encrypted URLs\n"
            f"• 🎓 MPD URLs if the key is known (e.g., Mpd_url?key=key XX:XX)</blockquote>\n\n"
            f"<b>💵 Monthly Plan: 800 INR</b>\n\n"
-           f"If you want to buy membership of the bot, feel free to contact [{CREDIT}](tg://user?id={OWNER})\n"
+           f"If you want to buy membership of the bot, feel free to contact [{CREDIT}](https://t.me/Nikhilbhaiiibot)\n"
     )  
     
   await callback_query.message.edit_media(
