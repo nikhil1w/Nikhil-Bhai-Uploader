@@ -72,7 +72,7 @@ photozip = 'https://files.catbox.moe/hn7kyr.jpg'
 BUTTONSCONTACT = InlineKeyboardMarkup([[InlineKeyboardButton(text="📞 Contact", url="https://t.me/Nikhilbhaiiibot")]])
 keyboard = InlineKeyboardMarkup(
     [
-        [InlineKeyboardButton(text="🛠️ Help", url="https://t.me/freebatcheswithnikhil"), InlineKeyboardButton(text="🛠️ Admin", url="https://t.me/Nikhilbhaiiibot)],
+        [InlineKeyboardButton(text="🛠️ Help", url="https://t.me/freebatcheswithnikhil"), InlineKeyboardButton(text="🛠️ Admin", url="https://t.me/Nikhilbhaiiibot")],
     ]
 )
 
