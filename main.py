@@ -588,7 +588,7 @@ async def start(bot, m: Message):
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("💎 Feature", callback_data="feat_command"), InlineKeyboardButton("🕸️ Commands", callback_data="cmd_command")],
             [InlineKeyboardButton("💳 Plans", callback_data="upgrade_command")],
-            [InlineKeyboardButton(text="📞 Contact", url=f"https://t.me/Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Batches", url="https://t.me/Freebatcheswithnikhil)],
+            [InlineKeyboardButton(text="📞 Contact", url=f"https://t.me/Nikhilbhaiiibot"), InlineKeyboardButton(text="🛠️ Batches", url="https://t.me/Freebatcheswithnikhil")],
         ])
         
         await start_message.edit_text(
