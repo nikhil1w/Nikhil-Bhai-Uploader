@@ -857,99 +857,76 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
             await m.reply_document(document=file)
             await sent.delete()
     except Exception as e:
-        await m.reply_text(f"**Error sending logs:**\n<blockquote>{e}</blockquote>")
+        await m.reply_text(f"**Error sending logs:**\n<blockquote>{e}</blockquote>"
 
-
-@bot.on_message(filters.command(["drm"]) )
+                           
+@bot.on_message(filters.command(["drm"]) & auth_filter)
 async def txt_handler(bot: Client, m: Message):  
-    global processing_request, cancel_requested, cancel_message
-    processing_request = True
-    cancel_requested = False
-    if m.chat.id not in AUTH_USERS:
-            print(f"User ID not in AUTH_USERS", m.chat.id)
-            await bot.send_message(m.chat.id, f"<blockquote>__**Oopss! You are not a Premium member\nPLEASE /upgrade YOUR PLAN\nSend me your user id for authorization\nYour User id**__ - `{m.chat.id}`</blockquote>\n")
+    bot_info = await bot.get_me()
+    bot_username = bot_info.username
+
+    # Check auth
+    if m.chat.type == "channel":
+        if not db.is_channel_authorized(m.chat.id, bot_username):
             return
-    editable = await m.reply_text(f"**__Hii, I am drm Downloader Bot__\n<blockquote><i>Send Me Your text file which enclude Name with url...\nE.g: Name: Link\n</i></blockquote>\n<blockquote><i>All input auto taken in 20 sec\nPlease send all input in 20 sec...\n</i></blockquote>**")
+    else:
+        if not db.is_user_authorized(m.from_user.id, bot_username):
+            await m.reply_text("❌ You are not authorized to use this command.")
+            return
+    
+    editable = await m.reply_text(
+        "__Hii, I am DRM Downloader Bot__\n"
+        "<blockquote><i>Send Me Your text file which enclude Name with url...\nE.g: Name: Link\n</i></blockquote>"
+    )
     input: Message = await bot.listen(editable.chat.id)
-    x = await input.download()
-    await bot.send_document(OWNER, x)
-    await input.delete(True)
-    file_name, ext = os.path.splitext(os.path.basename(x))  # Extract filename & extension
-    path = f"./downloads/{m.chat.id}"
     
-    pdf_count = 0
-    img_count = 0
-    v2_count = 0
-    mpd_count = 0
-    m3u8_count = 0
-    yt_count = 0
-    drm_count = 0
-    zip_count = 0
-    other_count = 0
-    
-    try:    
-        with open(x, "r") as f:
-            content = f.read()
-        content = content.split("\n")
-        
-        links = []
-        for i in content:
-            if "://" in i:
-                url = i.split("://", 1)[1]
-                links.append(i.split("://", 1))
-                if ".pdf" in url:
-                    pdf_count += 1
-                elif url.endswith((".png", ".jpeg", ".jpg")):
-                    img_count += 1
-                elif "v2" in url:
-                    v2_count += 1
-                elif "mpd" in url:
-                    mpd_count += 1
-                elif "m3u8" in url:
-                    m3u8_count += 1
-                elif "drm" in url:
-                    drm_count += 1
-                elif "youtu" in url:
-                    yt_count += 1
-                elif "zip" in url:
-                    zip_count += 1
-                else:
-                    other_count += 1
-        os.remove(x)
-    except:
-        await m.reply_text("<b>🔹Invalid file input.</b>")
-        os.remove(x)
+    if not input.document or not input.document.file_name.endswith('.txt'):
+        await m.reply_text("<b>❌ Please send a valid .txt file!</b>")
         return
-    
-    await editable.edit(f"**Total 🔗 links found are {len(links)}\n<blockquote>•PDF : {pdf_count}      •V2 : {v2_count}\n•Img : {img_count}      •YT : {yt_count}\n•zip : {zip_count}       •m3u8 : {m3u8_count}\n•drm : {drm_count}      •Other : {other_count}\n•mpd : {mpd_count}</blockquote>\nSend From where you want to download**")
+        
+    x = await input.download()
+    await bot.send_document(OWNER_ID, x)
+    await input.delete(True)
+    file_name, _ = os.path.splitext(os.path.basename(x))  
+
+    # Read file
+    with open(x, "r", encoding='utf-8') as f:
+        content = [line.strip() for line in f if line.strip()]
+    os.remove(x)
+
+    links = []
+    for i in content:
+        if "://" in i:
+            parts = i.split("://", 1)
+            if len(parts) == 2:
+                name = parts[0]
+                url = parts[1]
+                links.append([name, url])
+
+    await editable.edit(f"**🔗 {len(links)} links found. Send index (1-{len(links)})**")
     try:
         input0: Message = await bot.listen(editable.chat.id, timeout=20)
         raw_text = input0.text
         await input0.delete(True)
     except asyncio.TimeoutError:
         raw_text = '1'
-    
-    if int(raw_text) > len(links) :
-        await editable.edit(f"**🔹Enter number in range of Index (01-{len(links)})**")
-        processing_request = False  # Reset the processing flag
-        await m.reply_text("**🔹Exiting Task......  **")
+
+    if int(raw_text) > len(links):
+        await editable.edit(f"**❌ Enter number in range (1-{len(links)})**")
         return
-        
-    await editable.edit(f"**Enter Batch Name or send /d**")
+    
+    # Batch name
+    await editable.edit("**Send Batch Name or /d for default**")
     try:
         input1: Message = await bot.listen(editable.chat.id, timeout=20)
         raw_text0 = input1.text
         await input1.delete(True)
     except asyncio.TimeoutError:
         raw_text0 = '/d'
-    
-    if raw_text0 == '/d':
-        b_name = file_name.replace('_', ' ')
-    else:
-        b_name = raw_text0
-    
+    b_name = file_name.replace('_', ' ') if raw_text0 == '/d' else raw_text0
 
-    await editable.edit("__**Enter resolution or Video Quality (`144`, `240`, `360`, `480`, `720`, `1080`)**__")
+    # Resolution
+    await editable.edit("**Send resolution (360/480/720/1080)**")
     try:
         input2: Message = await bot.listen(editable.chat.id, timeout=20)
         raw_text2 = input2.text
@@ -957,100 +934,65 @@ async def txt_handler(bot: Client, m: Message):
     except asyncio.TimeoutError:
         raw_text2 = '480'
     quality = f"{raw_text2}p"
-    try:
-        if raw_text2 == "144":
-            res = "256x144"
-        elif raw_text2 == "240":
-            res = "426x240"
-        elif raw_text2 == "360":
-            res = "640x360"
-        elif raw_text2 == "480":
-            res = "854x480"
-        elif raw_text2 == "720":
-            res = "1280x720"
-        elif raw_text2 == "1080":
-            res = "1920x1080" 
-        else: 
-            res = "UN"
-    except Exception:
-            res = "UN"
 
-    await editable.edit(f"**Enter the Credit Name or send /d\n\n<blockquote><b>Format:</b>\n🔹Send __Admin__ only for caption\n🔹Send __Admin,filename__ for caption and file...Separate them with a comma (,)</blockquote>**")
+    # Credit / Watermark Name
+    await editable.edit("**Send your name for credit or /d for default**")
     try:
         input3: Message = await bot.listen(editable.chat.id, timeout=20)
         raw_text3 = input3.text
         await input3.delete(True)
     except asyncio.TimeoutError:
         raw_text3 = '/d'
-        
     if raw_text3 == '/d':
-        CR = f"{CREDIT}"
-    elif "," in raw_text3:
-        CR, PRENAME = raw_text3.split(",")
+        CR = "Nikhil Bhai"   # Default
     else:
         CR = raw_text3
 
-    await editable.edit("**Enter 𝐏𝐖/𝐂𝐖/𝐂𝐏 Working Token For 𝐌𝐏𝐃 𝐔𝐑𝐋 or send /d**")
-    try:
-        input4: Message = await bot.listen(editable.chat.id, timeout=20)
-        raw_text4 = input4.text
-        await input4.delete(True)
-    except asyncio.TimeoutError:
-        raw_text4 = '/d'
-
-    if raw_text4 == '/d':
-        cwtoken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MjQyMzg3OTEsImNvbiI6eyJpc0FkbWluIjpmYWxzZSwiYXVzZXIiOiJVMFZ6TkdGU2NuQlZjR3h5TkZwV09FYzBURGxOZHowOSIsImlkIjoiZEUxbmNuZFBNblJqVEROVmFWTlFWbXhRTkhoS2R6MDkiLCJmaXJzdF9uYW1lIjoiYVcxV05ITjVSemR6Vm10ak1WUlBSRkF5ZVNzM1VUMDkiLCJlbWFpbCI6Ik5Ga3hNVWhxUXpRNFJ6VlhiR0ppWTJoUk0wMVdNR0pVTlU5clJXSkRWbXRMTTBSU2FHRnhURTFTUlQwPSIsInBob25lIjoiVUhVMFZrOWFTbmQ1ZVcwd1pqUTViRzVSYVc5aGR6MDkiLCJhdmF0YXIiOiJLM1ZzY1M4elMwcDBRbmxrYms4M1JEbHZla05pVVQwOSIsInJlZmVycmFsX2NvZGUiOiJOalZFYzBkM1IyNTBSM3B3VUZWbVRtbHFRVXAwVVQwOSIsImRldmljZV90eXBlIjoiYW5kcm9pZCIsImRldmljZV92ZXJzaW9uIjoiUShBbmRyb2lkIDEwLjApIiwiZGV2aWNlX21vZGVsIjoiU2Ftc3VuZyBTTS1TOTE4QiIsInJlbW90ZV9hZGRyIjoiNTQuMjI2LjI1NS4xNjMsIDU0LjIyNi4yNTUuMTYzIn19.snDdd-PbaoC42OUhn5SJaEGxq0VzfdzO49WTmYgTx8ra_Lz66GySZykpd2SxIZCnrKR6-R10F5sUSrKATv1CDk9ruj_ltCjEkcRq8mAqAytDcEBp72-W0Z7DtGi8LdnY7Vd9Kpaf499P-y3-godolS_7ixClcYOnWxe2nSVD5C9c5HkyisrHTvf6NFAuQC_FD3TzByldbPVKK0ag1UnHRavX8MtttjshnRhv5gJs5DQWj4Ir_dkMcJ4JaVZO3z8j0OxVLjnmuaRBujT-1pavsr1CCzjTbAcBvdjUfvzEhObWfA1-Vl5Y4bUgRHhl1U-0hne4-5fF0aouyu71Y6W0eg'
-        cptoken = "cptoken"
-        pwtoken = "pwtoken"
-    else:
-        cwtoken = raw_text4
-        cptoken = raw_text4
-        pwtoken = raw_text4
-        
-    await editable.edit(f"**Send the Video Thumb URL or send /d**")
-    try:
-        input6: Message = await bot.listen(editable.chat.id, timeout=20)
-        raw_text6 = input6.text
-        await input6.delete(True)
-    except asyncio.TimeoutError:
-        raw_text6 = '/d'
-
-    if raw_text6.startswith("http://") or raw_text6.startswith("https://"):
-        # If a URL is provided, download thumbnail from the URL
-        getstatusoutput(f"wget '{raw_text6}' -O 'thumb.jpg'")
-        thumb = "thumb.jpg"
-    else:
-        thumb = raw_text6
-
-    await editable.edit("__**⚠️Provide the Channel ID or send /d__\n\n<blockquote><i>🔹 Make me an admin to upload.\n🔸Send /id in your channel to get the Channel ID.\n\nExample: Channel ID = -100XXXXXXXXXXX</i></blockquote>\n**")
-    try:
-        input7: Message = await bot.listen(editable.chat.id, timeout=20)
-        raw_text7 = input7.text
-        await input7.delete(True)
-    except asyncio.TimeoutError:
-        raw_text7 = '/d'
-
-    if "/d" in raw_text7:
-        channel_id = m.chat.id
-    else:
-        channel_id = raw_text7    
     await editable.delete()
+    
+    # Start processing links
+    count = int(raw_text)
+    for i in range(count-1, len(links)):
+        name1 = links[i][0][:60]
+        url = "https://" + links[i][1]
+        filename = f"{name1}.mp4"
 
-    try:
-        if raw_text == "1":
-            batch_message = await bot.send_message(chat_id=channel_id, text=f"<blockquote><b>🎯Target Batch : {b_name}</b></blockquote>")
-            if "/d" not in raw_text7:
-                await bot.send_message(chat_id=m.chat.id, text=f"<blockquote><b><i>🎯Target Batch : {b_name}</i></b></blockquote>\n\n🔄 Your Task is under processing, please check your Set Channel📱. Once your task is complete, I will inform you 📩")
-                await bot.pin_chat_message(channel_id, batch_message.id)
-                message_id = batch_message.id
-                pinning_message_id = message_id + 1
-                await bot.delete_messages(channel_id, pinning_message_id)
-        else:
-             if "/d" not in raw_text7:
-                await bot.send_message(chat_id=m.chat.id, text=f"<blockquote><b><i>🎯Target Batch : {b_name}</i></b></blockquote>\n\n🔄 Your Task is under processing, please check your Set Channel📱. Once your task is complete, I will inform you 📩")
-    except Exception as e:
-        await m.reply_text(f"**Fail Reason »**\n<blockquote><i>{e}</i></blockquote>\n\n✦𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐁𝐲 ✦ {CREDIT}🌟`")
+        # Download video with yt-dlp
+        cmd = f'yt-dlp -f "b[height<={raw_text2}]" "{url}" -o "{filename}"'
+        os.system(cmd)
 
+        # Generate thumbnail
+        thumb_path = f"{name1}_thumb.jpg"
+        final_thumb = f"{name1}_final_thumb.jpg"
+        os.system(f'ffmpeg -i "{filename}" -ss 00:00:01.000 -vframes 1 "{thumb_path}"')
+        os.system(
+            f'ffmpeg -i "{thumb_path}" -vf "drawtext=text=\'{CR}\':fontcolor=blue:fontsize=48:borderw=2:bordercolor=white:x=10:y=H-th-20" "{final_thumb}"'
+        )
+
+        # Caption
+        cc = (
+            f"<b>🏷️ ID :</b> {str(count).zfill(3)}\n"
+            f"<b>🎞️ Title :</b> {name1}\n"
+            f"<b>📚 Batch :</b> {b_name}\n"
+            f"<b>🎓 Uploaded By :</b> {CR}</b>"
+        )
+
+        # Send as streamable video
+        try:
+            await bot.send_video(
+                chat_id=m.chat.id,
+                video=filename,
+                caption=cc,
+                thumb=final_thumb,
+                supports_streaming=True
+            )
+        except Exception as e:
+            await bot.send_message(m.chat.id, f"❌ Failed: {name1}\nReason: {str(e)}")
+        
+        count += 1
+        await asyncio.sleep(1)
+
+    await bot.send_message(m.chat.id, f"✅ Task completed.\n📚 Batch: {b_name}")
         
     failed_count = 0
     count =int(raw_text)    
