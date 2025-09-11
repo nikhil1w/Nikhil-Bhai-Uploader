@@ -857,7 +857,7 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
             await m.reply_document(document=file)
             await sent.delete()
     except Exception as e:
-        await m.reply_text(f"**Error sending logs:**\n<blockquote>{e}</blockquote>"
+        await m.reply_text(f"**Error sending logs:**\n<blockquote>{e}</blockquote>")
 
                            
 @bot.on_message(filters.command(["drm"]) & auth_filter)
