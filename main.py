@@ -860,7 +860,7 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
         await m.reply_text(f"**Error sending logs:**\n<blockquote>{e}</blockquote>")
 
                            
-@bot.on_message(filters.command(["drm"]) & auth_filter)
+@bot.on_message(filters.command(["drm"]))
 async def txt_handler(bot: Client, m: Message):  
     bot_info = await bot.get_me()
     bot_username = bot_info.username
