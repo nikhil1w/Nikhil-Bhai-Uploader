@@ -40,11 +40,20 @@ import shutil
 import ffmpeg
 
 # Initialize the bot
+proxy = {
+    "scheme": os.getenv("PROXY_SCHEME", "http"),
+    "hostname": os.getenv("PROXY_HOST", "203.115.123.163"),
+    "port": int(os.getenv("PROXY_PORT", "80")),
+    "username": os.getenv("PROXY_USER", "admin"),
+    "password": os.getenv("PROXY_PASS", "admin"),
+}
+
 bot = Client(
     "bot",
     api_id=API_ID,
     api_hash=API_HASH,
-    bot_token=BOT_TOKEN
+    bot_token=BOT_TOKEN,
+    proxy=proxy
 )
 
 processing_request = False
