@@ -35,6 +35,32 @@
             "description": "𝙀𝙣𝙩𝙚𝙧 𝘾𝙧𝙚𝙙𝙞𝙩 𝙉𝙖𝙢𝙚 𝙞𝙣 𝙖𝙡𝙢𝙤𝙨𝙩 6-8 𝙡𝙚𝙩𝙩𝙚𝙧𝙨",
             "value": "𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎",
             "required": true
+        },
+
+        "PROXY_SCHEME": {
+            "description": "Proxy scheme (http ya socks5). Tumhara http hai to 'http' hi rakho",
+            "value": "http",
+            "required": true
+        },
+        "PROXY_HOST": {
+            "description": "Proxy server ka host/IP daalo",
+            "value": "",
+            "required": true
+        },
+        "PROXY_PORT": {
+            "description": "Proxy server ka port daalo",
+            "value": "8080",
+            "required": true
+        },
+        "PROXY_USER": {
+            "description": "Proxy ka username (agar hai to daalo, warna khali chhodo)",
+            "value": "",
+            "required": false
+        },
+        "PROXY_PASS": {
+            "description": "Proxy ka password (agar hai to daalo, warna khali chhodo)",
+            "value": "",
+            "required": false
         }
     },
     "formation": {
@@ -55,4 +81,4 @@
             "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
         }
     ]
-    }
+}
