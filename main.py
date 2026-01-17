@@ -39,13 +39,50 @@ import zipfile
 import shutil
 import ffmpeg
 
-# Initialize the bot
+# === Proxy Configuration (with Environment Variables) ===
+proxy_scheme = os.getenv("PROXY_SCHEME", "socks5")  # http / https / socks5
+proxy_host = os.getenv("PROXY_HOST", "143.110.190.60")
+proxy_port = os.getenv("PROXY_PORT", "1080")
+proxy_user = os.getenv("PROXY_USER")  # optional
+proxy_pass = os.getenv("PROXY_PASS")  # optional
+
+if proxy_user and proxy_pass:
+    proxy_url = f"{proxy_scheme}://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
+else:
+    proxy_url = f"{proxy_scheme}://{proxy_host}:{proxy_port}"
+
+# Requests proxies dict
+proxies = {
+    "http": proxy_url,
+    "https": proxy_url,
+}
+# ========================================================
+
+# Initialize the bot with proxy
 bot = Client(
     "bot",
     api_id=API_ID,
     api_hash=API_HASH,
-    bot_token=BOT_TOKEN
+    bot_token=BOT_TOKEN,
+    proxy={
+        "scheme": proxy_scheme,
+        "hostname": proxy_host,
+        "port": int(proxy_port),
+        # "username": proxy_user,
+        # "password": proxy_pass,
+    }
 )
+
+# -------------------- तुम्हारा बाकी का पूरा कोड (commands, handlers वगैरह) यहां वैसा का वैसा ही रहेगा --------------------
+# (तुम्हारे original main.py का सारा logic untouched है, फर्क सिर्फ Proxy config और Client init में है)
+
+# Example: requests usage with proxy
+# response = requests.get("https://api.telegram.org", proxies=proxies)
+
+# Example: aiohttp usage with proxy
+# async with aiohttp.ClientSession() as session:
+#     async with session.get("https://api.telegram.org", proxy=proxy_url) as resp:
+#         data = await resp.text()
 
 processing_request = False
 cancel_requested = False
